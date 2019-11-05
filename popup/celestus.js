@@ -1,20 +1,38 @@
+document.getElementById("random").addEventListener("change", () => {
+  if (document.getElementById("random").checked && document.getElementById("dg").checked){
+    document.getElementById("dg").checked = false;
+  }
+  
+});
+document.getElementById("dg").addEventListener("change", () => {
+  if (document.getElementById("dg").checked && document.getElementById("random").checked){
+    document.getElementById("random").checked = false;
+  }
+});
 /**
 * Listen for clicks on the buttons, and send the appropriate message to
 * the content script in the page.
 */
 function listenForClicks() {
   document.addEventListener("click", (e) => {
-
-    var codeInputValue = document.getElementById("inputCode").value;
-
     /**
     * Remove the page-hiding CSS from the active tab,
     * send a "reset" message to the content script in the active tab.
     */
-    function fillCode(tabs) {
+
+    function fillCodeDestination(tabs) {
+      console.log("blick 2")
       chrome.tabs.sendMessage(tabs[0].id, {
-        command: "fillCode",
-        code: splitCode(codeInputValue)
+        command: "fillCodeDestination",
+        code: splitCode(document.getElementById("inputCodeDestination").value)
+      });
+    }
+    function fillCodeTarget(tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        command: "fillCodeTarget",
+        code: splitCode(document.getElementById("inputCodeTarget").value),
+        random: document.getElementById("random").checked,
+        dg: document.getElementById("dg").checked
       });
     }
 
@@ -31,10 +49,15 @@ function listenForClicks() {
 
     /**
     * Get the active tab,
-    * then call "beastify()" or "reset()" as appropriate.
+    * then call "fillCodeDestination()" or "fillCodeTarget()" as appropriate.
     */
-    if (e.target.classList.contains("fill")) {
-      chrome.tabs.query({ "active": true, "currentWindow": true }, fillCode);
+
+    if (e.target.classList.contains("fillDestination")) {
+      console.log("click 1")
+      chrome.tabs.query({ "active": true, "currentWindow": true }, fillCodeDestination);
+    }
+    if (e.target.classList.contains("fillTarget")) {
+      chrome.tabs.query({ "active": true, "currentWindow": true }, fillCodeTarget);
     }
   });
 }
@@ -46,7 +69,7 @@ function listenForClicks() {
 function reportExecuteScriptError(error) {
   document.querySelector("#popup-content").classList.add("hidden");
   document.querySelector("#error-content").classList.remove("hidden");
-  console.error(`Failed to execute beastify content script: ${error.message}`);
+  console.error(`Failed to execute celestus content script: ${error.message}`);
 }
 
 /**

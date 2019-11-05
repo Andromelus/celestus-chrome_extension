@@ -17,8 +17,32 @@
     var CodeD = frame.document.getElementById("CodeD");
     var CodeE = frame.document.getElementById("CodeE");
     if (CodeA == null || CodeB == null || CodeC == null || CodeD == null || CodeE == null) {
-      console.log("could not find any code part");
-      alert("Il semble que vous ne soyez pas sur la page porte spatiale")
+      console.log("Erreur: impossible de trouver les inputs de code porte. (porte)");
+      alert("Erreur: impossible de trouver les inputs de code porte. (porte)")
+    } else {
+      var inputCodes = [];
+      inputCodes.push(CodeA);
+      inputCodes.push(CodeB);
+      inputCodes.push(CodeC);
+      inputCodes.push(CodeD);
+      inputCodes.push(CodeE);
+      return inputCodes;
+    }
+  }
+// index used because Véo used similar ids in same page.
+  // 0 = not random disrup ||| 1 = random disrup
+  function getDisruptionCodeInputs(random, dg) {
+    let frame = window[0].frames;
+    let index;
+    random == false ? (dg == false ? index = 0 : index = 2) : index = 1;
+    let CodeA = frame.document.getElementsByName("CodeA")[index];
+    let CodeB = frame.document.getElementsByName("CodeB")[index];
+    let CodeC = frame.document.getElementsByName("CodeC")[index];
+    let CodeD = frame.document.getElementsByName("CodeD")[index];
+    let CodeE = frame.document.getElementsByName("CodeE")[index];
+    if (CodeA == null || CodeB == null || CodeC == null || CodeD == null || CodeE == null) {
+      console.log("Disruption: impossible de trouver les inputs de code.");
+      alert("Erreur: impossible de trouver les inputs de code porte. (disruption) index = " + index);
     } else {
       var inputCodes = [];
       inputCodes.push(CodeA);
@@ -30,15 +54,24 @@
     }
   }
 
-  function fillCode(code, inputCodes) {
-    for(let i = 0; i < inputCodes.length; i++) {
+  function fillCodeDestination(code, inputCodes) {
+    for (let i = 0; i < inputCodes.length; i++) {
       inputCodes[i].value = code[i];
     }
   }
 
+  function fillCodeTarget(code, inputCodes) {
+    for (let i = 0; i < inputCodes.length; i++) {
+      inputCodes[i].value = code[i];
+    }
+  }
+
+
   chrome.runtime.onMessage.addListener((message) => {
-    if (message.command === "fillCode") {
-      fillCode(message.code, getCelestusCodeInputs());
+    if (message.command === "fillCodeDestination") {
+      fillCodeDestination(message.code, getCelestusCodeInputs());
+    } else if (message.command === "fillCodeTarget") {
+      fillCodeTarget(message.code, getDisruptionCodeInputs(message.random, message.dg));
     }
   });
 
